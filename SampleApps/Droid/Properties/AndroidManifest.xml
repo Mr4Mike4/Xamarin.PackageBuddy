@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.drewfrisk.debug">
+  <uses-sdk android:minSdkVersion="21" />
+  <application android:allowBackup="true" android:icon="@mipmap/icon" android:label="@string/app_name">
+    <receiver android:name="some.thirdparty.receiver" android:permission="com.google.android.c2dm.permission.SEND">
+      <intent-filter>
+        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+        <category android:name="com.drewfrisk.debug" />
+      </intent-filter>
+    </receiver>
+  </application>
+</manifest>

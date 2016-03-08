@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageBuddy", "PackageBuddy\PackageBuddy.csproj", "{065A693E-696A-45E5-90C6-AFBE8764270D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageBuddy.Runner", "PackageBuddy.Runner\PackageBuddy.Runner.csproj", "{246545C9-0383-45EB-A446-4D9DFA136665}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{4009CBBC-A4D5-4D41-9DD6-CEE9827E9C3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Droid", "SampleApps\Droid\Droid.csproj", "{BE4E215E-8A6F-44C0-9833-01C41F14E517}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{065A693E-696A-45E5-90C6-AFBE8764270D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{065A693E-696A-45E5-90C6-AFBE8764270D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{065A693E-696A-45E5-90C6-AFBE8764270D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{065A693E-696A-45E5-90C6-AFBE8764270D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{246545C9-0383-45EB-A446-4D9DFA136665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{246545C9-0383-45EB-A446-4D9DFA136665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{246545C9-0383-45EB-A446-4D9DFA136665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{246545C9-0383-45EB-A446-4D9DFA136665}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE4E215E-8A6F-44C0-9833-01C41F14E517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE4E215E-8A6F-44C0-9833-01C41F14E517}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE4E215E-8A6F-44C0-9833-01C41F14E517}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE4E215E-8A6F-44C0-9833-01C41F14E517}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BE4E215E-8A6F-44C0-9833-01C41F14E517} = {4009CBBC-A4D5-4D41-9DD6-CEE9827E9C3B}
+	EndGlobalSection
+EndGlobal
