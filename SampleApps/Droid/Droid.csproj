@@ -29,7 +29,7 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="mono ../../PackageBuddy.Runner/bin/Debug/PackageBuddy.Runner.exe -projectPath=&quot;${ProjectFile}&quot; -packageName=&quot;com.drewfrisk.debug&quot;" />
+        <Command type="BeforeBuild" command="mono ../../PackageBuddy.Runner/bin/Debug/PackageBuddy.Runner.exe -projectPath=&quot;${ProjectFile}&quot; -platform=android -packageName=&quot;com.drewfrisk.debug&quot;" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
