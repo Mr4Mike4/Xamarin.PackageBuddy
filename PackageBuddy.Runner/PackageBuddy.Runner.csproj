@@ -20,14 +20,15 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <Commandlineparameters>-platform=ios -projectPath="/Users/dfrisk/Dev/tools/PackageBuddy/SampleApps/iOS/iOS.csproj" -packageName="com.drewfrisk.debug"</Commandlineparameters>
+    <DocumentationFile>bin\Debug\PackageBuddy.Runner.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
+    <DocumentationFile>bin\Release\PackageBuddy.Runner.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -42,12 +43,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\PackageBuddy\PackageBuddy.csproj">
-      <Project>{065A693E-696A-45E5-90C6-AFBE8764270D}</Project>
-      <Name>PackageBuddy</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

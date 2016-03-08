@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Xamarin.PackageBuddy</id>
+        <version>0.0.1</version>
+        <title>PackageBuddy for Xamarin Apps</title>
+        <authors>drew@drewfrisk.com</authors>
+        <owners>Drew Frisk</owners>
+        <projectUrl>https://github.com/keannan5390/Xamarin.PackageBuddy</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A utility to manage manipulating version &amp; package information in AndroidManifest.xml &amp; Info.plist files</description>
+        <language>en-US</language>
+    </metadata>
+    <files>
+        <file src="tools\install.ps1" target="tools\install.ps1" />
+        <file src="PackageBuddy.Runner\bin\Release\PackageBuddy.Runner.exe" target="tools\PackageBuddy.exe" />
+        <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />
+        <file src="PackageBuddy.Runner\bin\Release\WhatsMissing.dll" target="tools\WhatsMissing.dll" />
+    </files>
+</package>
