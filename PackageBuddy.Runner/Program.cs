@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Xml;
 using System.IO;
+using WhatsMissing;
 
 namespace PackageBuddy.Runner
 {
@@ -10,11 +11,16 @@ namespace PackageBuddy.Runner
         private const string platformToken = "-platform=";
         private const string projectPathToken = "-projectPath=";
         private const string packageNameToken = "-packageName=";
+        private const string versionNumberToken = "-versionNumber=";
+        private const string versionNameToken = "-versionName=";
+
 
         private const string androidPlatform = "android";
         private const string iosPlatform = "ios";
 
         private const string bundleIdentifierXPath = "//key[text() ='CFBundleIdentifier']/following-sibling::*[1]";
+        private const string bundleVersionXPath = "//key[text() ='CFBundleVersion']/following-sibling::*[1]";
+        private const string bundleShortVersionStringXPath = "//key[text() ='CFBundleShortVersionString']/following-sibling::*[1]";
 
         public static void Main(string[] args)
         {
@@ -22,6 +28,8 @@ namespace PackageBuddy.Runner
             {
                 if (args.Length < 1)
                 {
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=android -projectPath=<path/to/AndroidProject.csproj -packageName=my.new.packagename");
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=ios -projectPath=<path/to/iOSProject.csproj -packageName=my.new.packagename");
                 }
                 else
                 {
@@ -36,16 +44,18 @@ namespace PackageBuddy.Runner
                         throw new ArgumentException("Allowed platform options are: \"android\", \"ios\"");
                     }
 
-                    string projectPath = args.FirstOrDefault(a => a.StartsWith(projectPathToken, StringComparison.OrdinalIgnoreCase)).Substring(projectPathToken.Length);
-                    string packageName = args.FirstOrDefault(a => a.StartsWith(packageNameToken, StringComparison.OrdinalIgnoreCase)).Substring(packageNameToken.Length);
+                    string projectPath = args.FirstOrDefault(a => a.StartsWith(projectPathToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(projectPathToken.Length));
+                    string packageName = args.FirstOrDefault(a => a.StartsWith(packageNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(packageNameToken.Length));
+                    string versionNumber = args.FirstOrDefault(a => a.StartsWith(versionNumberToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNumberToken.Length));
+                    string versionName = args.FirstOrDefault(a => a.StartsWith(versionNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNameToken.Length));
 
                     if (platform == androidPlatform)
                     {
-                        Program.LoadManifestAndUpdatePackage(projectPath, packageName);
+                        Program.LoadManifestAndUpdatePackage(projectPath, packageName, versionName, versionNumber);
                     }
                     else if (platform == iosPlatform)
                     {
-                        Program.LoadPlistAndUpdateBundle(projectPath, packageName);
+                        Program.LoadPlistAndUpdateBundle(projectPath, packageName, versionName, versionNumber);
                     }
                 }
             }
@@ -53,79 +63,152 @@ namespace PackageBuddy.Runner
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+            }      
+        }
+
+        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string versionName = null, string versionNumber = null)
+        {
+            var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
+
+            XmlDocument xmlDoc = Program.LoadXmlDoc("ios", fullProjectPath);
+
+            if (string.IsNullOrEmpty(newBundleId) == false)
+            {
+                string currentBundleId = Program.GetXmlNodeValue(xmlDoc, bundleIdentifierXPath);
+
+                Console.WriteLine("Current BundleId: " + currentBundleId);
+                if (string.IsNullOrWhiteSpace(currentBundleId) == false && currentBundleId != newBundleId)
+                {
+                    Console.WriteLine("Updating CFBundleIdentifier to {0}", newBundleId);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleIdentifierXPath, newBundleId);
+                }
+                else
+                {
+                    Console.WriteLine("Don't need to change the Bundle Id. It is already " + newBundleId);
+                }
             }
-                   
+
+            if (string.IsNullOrWhiteSpace(versionName) == false)
+            {
+                string currentVersionName = Program.GetXmlNodeValue(xmlDoc, bundleVersionXPath);
+
+                Console.WriteLine("Current Bundle Verion (short): " + currentVersionName);
+                if (string.IsNullOrWhiteSpace(currentVersionName) == false && currentVersionName != newBundleId)
+                {
+                    Console.WriteLine("Updating CFBundleShortVersionString to {0}", newBundleId);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, versionName);
+                }
+                else
+                {
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newBundleId);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(versionNumber) == false)
+            {
+                string currentVersionNumber = Program.GetXmlNodeValue(xmlDoc, bundleVersionXPath);
+
+                Console.WriteLine("Current Bundle Verion: " + currentVersionNumber);
+                if (string.IsNullOrWhiteSpace(currentVersionNumber) == false && currentVersionNumber != newBundleId)
+                {
+                    Console.WriteLine("Updating CFBundleVersion to {0}", versionNumber);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, versionNumber);
+                }
+                else
+                {
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + versionNumber);
+                }
+            }
+
+            Program.SaveXmlDoc(xmlDoc, "ios", fullProjectPath);
         }
 
-        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId)
+        private static void LoadManifestAndUpdatePackage(string projectPath, string newPackageName = null, string versionName = null, string versionNumber = null)
         {
             var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
 
-            Uri projectFile = new Uri(fullProjectPath);
-
-            // get path without file name
-            string projectFilename = projectFile.Segments.Last();
-            string projectDirectory = fullProjectPath.Replace(projectFilename, string.Empty);
-
-            string plistPath = string.Format("{0}/Info.plist", projectDirectory);   
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Loading {0}", plistPath);
-            var xmlDoc = new XmlDocument();
-            xmlDoc.Load(plistPath);
-            Console.WriteLine("Loaded {0}", plistPath);
-
-            Console.WriteLine("Updating CFBundleIdentifier in Info.plist to {0}", newBundleId);
-            xmlDoc = Program.EditXmlNodes(xmlDoc, bundleIdentifierXPath, newBundleId);
-            xmlDoc.Save(plistPath);
-            Console.WriteLine("Info.plist updated successfully");
-        }
-
-        private static void LoadManifestAndUpdatePackage(string projectPath, string newPackageName)
-        {
-            var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
-
-            Uri projectFile = new Uri(fullProjectPath);
-
-            // get path without file name
-            string projectFilename = projectFile.Segments.Last();
-            string projectDirectory = fullProjectPath.Replace(projectFilename, string.Empty);
-
-            string manifestPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Loading {0}", manifestPath);
-            var xmldoc = new XmlDocument();
-            xmldoc.Load(manifestPath);
-            Console.WriteLine("Loaded {0}", manifestPath);
+            XmlDocument xmlDoc = Program.LoadXmlDoc("android", fullProjectPath);
 
             Console.WriteLine("Loading manifest node");
-            var manifestNode = xmldoc.SelectSingleNode("/manifest");
+            var manifestNode = xmlDoc.SelectSingleNode("/manifest");
             Console.WriteLine("Getting manifest attributes");
             var attributes = manifestNode.Attributes;
 
-            var package = attributes.GetNamedItem("package");
-
-            string currentPackageName = package.Value;
-
-            if (string.IsNullOrWhiteSpace(currentPackageName) == false && currentPackageName != newPackageName)
+            if (string.IsNullOrWhiteSpace(newPackageName) == false)
             {
-                Console.WriteLine("Current package name: " + currentPackageName);
+                var package = attributes.GetNamedItem("package");
+                if (package != null)
+                {
+                    string currentPackageName = package.Value;
 
-                string xmlString = xmldoc.OuterXml;
-                Console.WriteLine("Replacing all occurrences of package name \"" + currentPackageName + "\"");
-                xmlString = xmlString.Replace(currentPackageName, newPackageName);
+                    if (string.IsNullOrWhiteSpace(currentPackageName) == false && currentPackageName != newPackageName)
+                    {
+                        Console.WriteLine("Current package name: " + currentPackageName);
 
-                Console.WriteLine("Saving changes to manifest file");
-                xmldoc.LoadXml(xmlString);
-                xmldoc.Save(manifestPath);
-
-                Console.WriteLine("Manifest file updated successfully");
+                        string xmlString = xmlDoc.OuterXml;
+                        Console.WriteLine("Replacing all occurrences of package name \"" + currentPackageName + "\"");
+                        xmlString = xmlString.Replace(currentPackageName, newPackageName);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Don't need to change the package name. It is already " + newPackageName);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Could not find package. Skipping.");
+                }
             }
-            else
+
+            if (string.IsNullOrWhiteSpace(versionName) == false)
             {
-                Console.WriteLine("Don't need to change the package name. It is already " + newPackageName);
+                var currentVersionName = attributes.GetNamedItem("android:versionName");
+                if (currentVersionName != null)
+                {
+                    if (string.IsNullOrWhiteSpace(currentVersionName.Value) == false && currentVersionName.Value != versionName)
+                    {
+                        Console.WriteLine("Current version number: " + versionName);
+
+                        string xmlString = xmlDoc.OuterXml;
+
+                        currentVersionName.Value = versionName;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Don't need to change the version name. It is already " + versionName);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Could not find android:versionCode. Skipping.");
+                }
             }
+
+            if (string.IsNullOrWhiteSpace(versionNumber) == false)
+            {
+                var currentVersionNumber = attributes.GetNamedItem("android:versionNumber");
+                if (currentVersionNumber != null)
+                {
+                    if (string.IsNullOrWhiteSpace(currentVersionNumber.Value) == false && currentVersionNumber.Value != versionNumber)
+                    {
+                        Console.WriteLine("Current version number: " + versionNumber);
+
+                        string xmlString = xmlDoc.OuterXml;
+
+                        currentVersionNumber.Value = versionNumber;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Don't need to change the version number. It is already " + versionNumber);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Could not find android:versionNumber. Skipping.");
+                }
+            }
+
+            Program.SaveXmlDoc(xmlDoc, "android", fullProjectPath);
         }
 
         private static XmlDocument EditXmlNodes(XmlDocument doc, string xpath, string value, bool condition = true)
@@ -152,6 +235,79 @@ namespace PackageBuddy.Runner
             }
 
             return doc;
+        }
+
+        private static string  GetXmlNodeValue(XmlDocument doc, string xpath)
+        {
+            var nodes = doc.SelectNodes(xpath);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+
+                if (node != null)
+                {
+                    if (node.NodeType == XmlNodeType.Element)
+                    {
+                        return node.InnerXml;
+                    }
+                    else
+                    {
+                        return node.Value;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static XmlDocument LoadXmlDoc(string platform, string fullProjectPath)
+        {
+            Uri projectFile = new Uri(fullProjectPath);
+
+            // get path without file name
+            string projectFilename = projectFile.Segments.Last();
+            string projectDirectory = fullProjectPath.Replace(projectFilename, string.Empty);
+
+            string plistPath = null;
+            if (platform == "ios")
+            {
+                plistPath = string.Format("{0}Info.plist", projectDirectory);   
+            }
+            else if (platform == "android")
+            {
+                plistPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Loading {0}", plistPath);
+            var xmlDoc = new XmlDocument();
+            xmlDoc.Load(plistPath);
+            Console.WriteLine("Loaded {0}", plistPath);
+
+            return xmlDoc;
+        }
+
+        private static void SaveXmlDoc(XmlDocument doc, string platform, string fullProjectPath)
+        {
+            Uri projectFile = new Uri(fullProjectPath);
+
+            // get path without file name
+            string projectFilename = projectFile.Segments.Last();
+            string projectDirectory = fullProjectPath.Replace(projectFilename, string.Empty);
+
+            string plistPath = null;
+            if (platform == "ios")
+            {
+                plistPath = string.Format("{0}/Info.plist", projectDirectory);   
+            }
+            else if (platform == "android")
+            {
+                plistPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
+            }
+
+            Console.WriteLine("Saving changed to {0}", fullProjectPath);
+            doc.Save(plistPath);
+            Console.WriteLine("{0} updated successfully", plistPath);
         }
     }
 }

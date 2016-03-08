@@ -33,6 +33,9 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WhatsMissing">
+      <HintPath>..\packages\WhatsMissing.1.7.0\lib\net45\WhatsMissing.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -44,5 +47,8 @@
       <Project>{065A693E-696A-45E5-90C6-AFBE8764270D}</Project>
       <Name>PackageBuddy</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
