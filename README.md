@@ -11,7 +11,7 @@ This is meant to be a cross-platform way (Windows & OSX) to update the Info.plis
 Supported values:
 * package name / bundle id
 
-Comming Soon
+Coming Soon
 * versionCode / bundle version
 * versionName / bundler version string 
 
