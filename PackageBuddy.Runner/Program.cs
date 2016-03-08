@@ -43,7 +43,7 @@ namespace PackageBuddy.Runner
             string projectFilename = projectFile.Segments.Last();
             string projectDirectory = fullProjectPath.Replace(projectFilename, string.Empty);
 
-            string manifestPath = string.Format("{0}/Properties/AndroidManifest.xml", projectDirectory);
+            string manifestPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Loading {0}", manifestPath);
@@ -58,14 +58,26 @@ namespace PackageBuddy.Runner
 
             var package = attributes.GetNamedItem("package");
 
-
             string currentPackageName = package.Value;
 
-            string xmlString = xmldoc.OuterXml;
-            xmlString = xmlString.Replace(currentPackageName, newPackageName);
+            if (string.IsNullOrWhiteSpace(currentPackageName) == false && currentPackageName != newPackageName)
+            {
+                Console.WriteLine("Current package name: " + currentPackageName);
 
-            xmldoc.LoadXml(xmlString);
-            xmldoc.Save(manifestPath);
+                string xmlString = xmldoc.OuterXml;
+                Console.WriteLine("Replacing all occurrences of package name \"" + currentPackageName + "\"");
+                xmlString = xmlString.Replace(currentPackageName, newPackageName);
+
+                Console.WriteLine("Saving changes to manifest file");
+                xmldoc.LoadXml(xmlString);
+                xmldoc.Save(manifestPath);
+
+                Console.WriteLine("Manifest file updated successfully");
+            }
+            else
+            {
+                Console.WriteLine("Don't need to change the package name. It is already " + newPackageName);
+            }
         }
     }
 }
