@@ -2,14 +2,24 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Xamarin.PackageBuddy</id>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
         <title>PackageBuddy for Xamarin Apps</title>
-        <authors>drew@drewfrisk.com</authors>
+        <authors>hello@drewfrisk.com</authors>
         <owners>Drew Frisk</owners>
         <projectUrl>https://github.com/keannan5390/Xamarin.PackageBuddy</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>A utility to manage manipulating version &amp; package information in AndroidManifest.xml &amp; Info.plist files</description>
+        <description>A utility to manage manipulating version &amp; package information in AndroidManifest.xml &amp; Info.plist files. Use it in your build process to easily manipulate bundle information. 
+        
+        Note: does not require Xamarin to be installed. You do however need mono installed.</description>
+        <summary>Easily manipulate version &amp; package information for Android &amp; Apps.</summary>
         <language>en-US</language>
+        <tags>xamarin, android, ios, manifest, plist</tags>
+        <releaseNotes>
+        [0.0.2]
+		- Fixed android versionCode not updating
+		[0.0.1]
+		- Inital release
+     </releaseNotes>
     </metadata>
     <files>
         <file src="tools\install.ps1" target="tools\install.ps1" />
