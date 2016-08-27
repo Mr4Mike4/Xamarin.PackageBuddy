@@ -28,8 +28,8 @@ namespace PackageBuddy.Runner
             {
                 if (args.Length < 1)
                 {
-                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=android -projectPath=<path/to/AndroidProject.csproj -packageName=my.new.packagename");
-                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=ios -projectPath=<path/to/iOSProject.csproj -packageName=my.new.packagename");
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=android -projectPath=<path/to/AndroidProject.csproj> -packageName=my.new.packagename");
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=ios -projectPath=<path/to/iOSProject.csproj> -packageName=my.new.packagename");
                 }
                 else
                 {
@@ -186,7 +186,7 @@ namespace PackageBuddy.Runner
 
             if (string.IsNullOrWhiteSpace(versionNumber) == false)
             {
-                var currentVersionNumber = attributes.GetNamedItem("android:versionNumber");
+                var currentVersionNumber = attributes.GetNamedItem("android:versionCode");
                 if (currentVersionNumber != null)
                 {
                     if (string.IsNullOrWhiteSpace(currentVersionNumber.Value) == false && currentVersionNumber.Value != versionNumber)
