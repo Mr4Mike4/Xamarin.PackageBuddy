@@ -66,7 +66,7 @@ namespace PackageBuddy.Runner
             }
         }
 
-        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string versionName = null, string versionNumber = null)
+        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string newVersionName = null, string newVersionCode = null)
         {
             var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
 
@@ -88,35 +88,35 @@ namespace PackageBuddy.Runner
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(versionName) == false)
+            if (string.IsNullOrWhiteSpace(newVersionName) == false)
             {
                 string currentVersionName = Program.GetXmlNodeValue(xmlDoc, bundleVersionXPath);
 
                 Console.WriteLine("Current Bundle Verion (short): " + currentVersionName);
-                if (string.IsNullOrWhiteSpace(currentVersionName) == false && currentVersionName != newBundleId)
+                if (string.IsNullOrWhiteSpace(currentVersionName) == false && currentVersionName != newVersionName)
                 {
-                    Console.WriteLine("Updating CFBundleShortVersionString to {0}", newBundleId);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, versionName);
+                    Console.WriteLine("Updating CFBundleShortVersionString to {0}", newVersionName);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, newVersionName);
                 }
                 else
                 {
-                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newBundleId);
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionName);
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(versionNumber) == false)
+            if (string.IsNullOrWhiteSpace(newVersionCode) == false)
             {
-                string currentVersionNumber = Program.GetXmlNodeValue(xmlDoc, bundleVersionXPath);
+                string currentVersionNumber = Program.GetXmlNodeValue(xmlDoc, bundleShortVersionStringXPath);
 
                 Console.WriteLine("Current Bundle Verion: " + currentVersionNumber);
-                if (string.IsNullOrWhiteSpace(currentVersionNumber) == false && currentVersionNumber != newBundleId)
+                if (string.IsNullOrWhiteSpace(currentVersionNumber) == false && currentVersionNumber != newVersionCode)
                 {
-                    Console.WriteLine("Updating CFBundleVersion to {0}", versionNumber);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, versionNumber);
+                    Console.WriteLine("Updating CFBundleVersion to {0}", newVersionCode);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleShortVersionStringXPath, newVersionCode);
                 }
                 else
                 {
-                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + versionNumber);
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionCode);
                 }
             }
 

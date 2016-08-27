@@ -8,10 +8,21 @@ Adding this via nuget will add a PackageBuddy.exe that can be executed from the 
 
 This is meant to be a cross-platform way (Windows & OSx) to update the Info.plist and AndroidManifest.xml during build. It can either be used directly from the project file reference and run on every build, or use it on your build server to offer a cross-platform way to update your manifest details
 
-Supported values:
-* package name / bundle id
-* versionCode / bundle version
-* versionName / bundler version string
+There are 3 values that can be manipulated using this tool:
+
+* packageName
+* versionCode
+* versionName
+
+Android:
+- packageName maps to the package attribute
+- versionCode maps to the android:versionCode attribute
+- versionName maps to the android:versionName attribute
+
+iOS:
+- packageName maps to CFBundleIdentifier
+- versionName maps to CFBundleVersion
+- versionCode maps to CFBundleShortVersionString
 
 ### Xamarin Studio
 From Xamarin Studio, add a Before Build command to each of your desired configurations, then specify the following
