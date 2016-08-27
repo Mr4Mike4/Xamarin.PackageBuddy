@@ -11,7 +11,7 @@ namespace PackageBuddy.Runner
         private const string platformToken = "-platform=";
         private const string projectPathToken = "-projectPath=";
         private const string packageNameToken = "-packageName=";
-        private const string versionNumberToken = "-versionNumber=";
+        private const string versionNumberToken = "-versionCode=";
         private const string versionNameToken = "-versionName=";
 
 
@@ -33,7 +33,7 @@ namespace PackageBuddy.Runner
                 }
                 else
                 {
-                    string platform = args.FirstOrDefault(a => a.StartsWith(platformToken, StringComparison.OrdinalIgnoreCase)).Substring(platformToken.Length);
+                    string platform = TrimArgument(args.FirstOrDefault(a => a.StartsWith(platformToken, StringComparison.OrdinalIgnoreCase)).Substring(platformToken.Length));
 
                     if (string.IsNullOrWhiteSpace(platform))
                     {
@@ -44,10 +44,10 @@ namespace PackageBuddy.Runner
                         throw new ArgumentException("Allowed platform options are: \"android\", \"ios\"");
                     }
 
-                    string projectPath = args.FirstOrDefault(a => a.StartsWith(projectPathToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(projectPathToken.Length));
-                    string packageName = args.FirstOrDefault(a => a.StartsWith(packageNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(packageNameToken.Length));
-                    string versionNumber = args.FirstOrDefault(a => a.StartsWith(versionNumberToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNumberToken.Length));
-                    string versionName = args.FirstOrDefault(a => a.StartsWith(versionNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNameToken.Length));
+                    string projectPath = TrimArgument(args.FirstOrDefault(a => a.StartsWith(projectPathToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(projectPathToken.Length)));
+                    string packageName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(packageNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(packageNameToken.Length)));
+                    string versionNumber = TrimArgument(args.FirstOrDefault(a => a.StartsWith(versionNumberToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNumberToken.Length)));
+                    string versionName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(versionNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNameToken.Length)));
 
                     if (platform == androidPlatform)
                     {
@@ -63,7 +63,7 @@ namespace PackageBuddy.Runner
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
-            }      
+            }
         }
 
         private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string versionName = null, string versionNumber = null)
@@ -139,15 +139,11 @@ namespace PackageBuddy.Runner
                 var package = attributes.GetNamedItem("package");
                 if (package != null)
                 {
-                    string currentPackageName = package.Value;
-
-                    if (string.IsNullOrWhiteSpace(currentPackageName) == false && currentPackageName != newPackageName)
+                    if (string.IsNullOrWhiteSpace(package.Value) == false && package.Value != newPackageName)
                     {
-                        Console.WriteLine("Current package name: " + currentPackageName);
+                        Console.WriteLine("Current package name: " + package.Value);
 
-                        string xmlString = xmlDoc.OuterXml;
-                        Console.WriteLine("Replacing all occurrences of package name \"" + currentPackageName + "\"");
-                        xmlString = xmlString.Replace(currentPackageName, newPackageName);
+                        package.Value = newPackageName;
                     }
                     else
                     {
@@ -237,7 +233,7 @@ namespace PackageBuddy.Runner
             return doc;
         }
 
-        private static string  GetXmlNodeValue(XmlDocument doc, string xpath)
+        private static string GetXmlNodeValue(XmlDocument doc, string xpath)
         {
             var nodes = doc.SelectNodes(xpath);
             for (int i = 0; i < nodes.Count; i++)
@@ -271,7 +267,7 @@ namespace PackageBuddy.Runner
             string plistPath = null;
             if (platform == "ios")
             {
-                plistPath = string.Format("{0}Info.plist", projectDirectory);   
+                plistPath = string.Format("{0}Info.plist", projectDirectory);
             }
             else if (platform == "android")
             {
@@ -298,7 +294,7 @@ namespace PackageBuddy.Runner
             string plistPath = null;
             if (platform == "ios")
             {
-                plistPath = string.Format("{0}/Info.plist", projectDirectory);   
+                plistPath = string.Format("{0}/Info.plist", projectDirectory);
             }
             else if (platform == "android")
             {
@@ -308,6 +304,17 @@ namespace PackageBuddy.Runner
             Console.WriteLine("Saving changed to {0}", fullProjectPath);
             doc.Save(plistPath);
             Console.WriteLine("{0} updated successfully", plistPath);
+        }
+
+        private static string TrimArgument(string arg)
+        {
+            if (string.IsNullOrWhiteSpace(arg)) return arg;
+
+            arg = arg.Trim();
+            arg = arg.Trim('"');
+            arg = arg.Trim('\'');
+
+            return arg;
         }
     }
 }
