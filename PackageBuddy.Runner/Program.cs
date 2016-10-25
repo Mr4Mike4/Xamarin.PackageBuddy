@@ -271,7 +271,8 @@ namespace PackageBuddy.Runner
             }
             else if (platform == "android")
             {
-                plistPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
+				
+				plistPath = $"{projectDirectory}Properties{Path.DirectorySeparatorChar}AndroidManifest.xml";
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -294,11 +295,11 @@ namespace PackageBuddy.Runner
             string plistPath = null;
             if (platform == "ios")
             {
-                plistPath = string.Format("{0}/Info.plist", projectDirectory);
+				plistPath = $"{projectDirectory}{Path.DirectorySeparatorChar}Info.plist";
             }
             else if (platform == "android")
             {
-                plistPath = string.Format("{0}Properties/AndroidManifest.xml", projectDirectory);
+                plistPath = $"{projectDirectory}Properties{Path.DirectorySeparatorChar}AndroidManifest.xml";
             }
 
             Console.WriteLine("Saving changed to {0}", fullProjectPath);
