@@ -18,9 +18,9 @@ namespace PackageBuddy.Runner
         private const string androidPlatform = "android";
         private const string iosPlatform = "ios";
 
-        private const string bundleIdentifierXPath = "//key[text() ='CFBundleIdentifier']/following-sibling::*[1]";
-        private const string bundleVersionXPath = "//key[text() ='CFBundleVersion']/following-sibling::*[1]";
-        private const string bundleShortVersionStringXPath = "//key[text() ='CFBundleShortVersionString']/following-sibling::*[1]";
+        private const string bundleIdentifierXPath_CFBundleIdentifier = "//key[text() ='CFBundleIdentifier']/following-sibling::*[1]";
+        private const string bundleVersionBuildStringXPath_CFBundleVersion = "//key[text() ='CFBundleVersion']/following-sibling::*[1]";
+        private const string bundleVersionNameStringXPath_CFBundleShortVersion = "//key[text() ='CFBundleShortVersionString']/following-sibling::*[1]";
 
         public static void Main(string[] args)
         {
@@ -74,13 +74,13 @@ namespace PackageBuddy.Runner
 
             if (string.IsNullOrEmpty(newBundleId) == false)
             {
-                string currentBundleId = Program.GetXmlNodeValue(xmlDoc, bundleIdentifierXPath);
+                string currentBundleId = Program.GetXmlNodeValue(xmlDoc, bundleIdentifierXPath_CFBundleIdentifier);
 
                 Console.WriteLine("Current BundleId: " + currentBundleId);
                 if (string.IsNullOrWhiteSpace(currentBundleId) == false && currentBundleId != newBundleId)
                 {
                     Console.WriteLine("Updating CFBundleIdentifier to {0}", newBundleId);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleIdentifierXPath, newBundleId);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleIdentifierXPath_CFBundleIdentifier, newBundleId);
                 }
                 else
                 {
@@ -88,35 +88,35 @@ namespace PackageBuddy.Runner
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(newVersionName) == false)
-            {
-                string currentVersionName = Program.GetXmlNodeValue(xmlDoc, bundleVersionXPath);
-
-                Console.WriteLine("Current Bundle Verion (short): " + currentVersionName);
-                if (string.IsNullOrWhiteSpace(currentVersionName) == false && currentVersionName != newVersionName)
-                {
-                    Console.WriteLine("Updating CFBundleShortVersionString to {0}", newVersionName);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionXPath, newVersionName);
-                }
-                else
-                {
-                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionName);
-                }
-            }
-
             if (string.IsNullOrWhiteSpace(newVersionCode) == false)
             {
-                string currentVersionNumber = Program.GetXmlNodeValue(xmlDoc, bundleShortVersionStringXPath);
+                string currentVersionCode = Program.GetXmlNodeValue(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion);
 
-                Console.WriteLine("Current Bundle Verion: " + currentVersionNumber);
-                if (string.IsNullOrWhiteSpace(currentVersionNumber) == false && currentVersionNumber != newVersionCode)
+                Console.WriteLine("Current Bundle Verion Build #: " + currentVersionCode);
+                if (string.IsNullOrWhiteSpace(currentVersionCode) == false && currentVersionCode != newVersionCode)
                 {
                     Console.WriteLine("Updating CFBundleVersion to {0}", newVersionCode);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleShortVersionStringXPath, newVersionCode);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion, newVersionCode);
                 }
                 else
                 {
                     Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionCode);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(newVersionName) == false)
+            {
+                string currentVersionName = Program.GetXmlNodeValue(xmlDoc, bundleVersionNameStringXPath_CFBundleShortVersion);
+
+                Console.WriteLine("Current Bundle Verion Name: " + currentVersionName);
+                if (string.IsNullOrWhiteSpace(currentVersionName) == false && currentVersionName != newVersionName)
+                {
+                    Console.WriteLine("Updating CFBundleShortVersionString to {0}", newVersionName);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionNameStringXPath_CFBundleShortVersion, newVersionName);
+                }
+                else
+                {
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionName);
                 }
             }
 
