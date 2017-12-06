@@ -130,12 +130,12 @@ namespace PackageBuddy.Runner
                 Console.WriteLine("Current Application Name: " + currentAppName);
                 if (string.IsNullOrWhiteSpace(currentAppName) == false && currentAppName != newAppName)
                 {
-                    Console.WriteLine("Updating CFBundleName to {0}", newVersionName);
+                    Console.WriteLine("Updating CFBundleName to {0}", newAppName);
                     xmlDoc = Program.EditXmlNodes(xmlDoc, bunleAppNameStringXPath_CFBundleName, newAppName);
                 }
                 else
                 {
-                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionName);
+                    Console.WriteLine("Don't need to change the App Name. It is already " + newAppName);
                 }
             }
 
