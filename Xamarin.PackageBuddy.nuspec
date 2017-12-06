@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Xamarin.PackageBuddy</id>
-        <version>1.0.0</version>
+        <version>2.0.0</version>
         <title>PackageBuddy for Xamarin Apps</title>
         <authors>hello@drewfrisk.com</authors>
         <owners>Drew Frisk</owners>
@@ -14,19 +14,24 @@
         Note: this package does not require Xamarin to be installed. You do however need mono installed on OSx or Linux.
         
         Android:
+        - appName maps to application android:label attribute
         - packageName maps to the package attribute
-        - versionCode maps to the android:versionCode attribute
+        - build maps to the android:versionCode attribute
         - versionName maps to the android:versionName attribute
         
         iOS:
+        - appName maps to CFBundleName
         - packageName maps to CFBundleIdentifier
+        - build maps to CFBundleShortVersionString
         - versionName maps to CFBundleVersion
-        - versionCode maps to CFBundleShortVersionString
         </description>
         <summary>Easily manipulate version &amp; package information for Android &amp; Apps.</summary>
         <language>en-US</language>
         <tags>xamarin, android, ios, manifest, plist</tags>
         <releaseNotes>
+        [2.0.0]
+        - add support for app name
+        - renamed version code to "build" to match how xamarin studio names things
         [1.0.0]
 		- First major release
         - Fixed issue with android package name not updating
