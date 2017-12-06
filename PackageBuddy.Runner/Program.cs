@@ -11,8 +11,9 @@ namespace PackageBuddy.Runner
         private const string platformToken = "-platform=";
         private const string projectPathToken = "-projectPath=";
         private const string packageNameToken = "-packageName=";
-        private const string versionNumberToken = "-versionCode=";
-        private const string versionNameToken = "-versionName=";
+        private const string buildNumberToken = "-build=";
+        private const string versionToken = "-versionName=";
+        private const string appNameToken = "-appName=";
 
 
         private const string androidPlatform = "android";
@@ -21,6 +22,7 @@ namespace PackageBuddy.Runner
         private const string bundleIdentifierXPath_CFBundleIdentifier = "//key[text() ='CFBundleIdentifier']/following-sibling::*[1]";
         private const string bundleVersionBuildStringXPath_CFBundleVersion = "//key[text() ='CFBundleVersion']/following-sibling::*[1]";
         private const string bundleVersionNameStringXPath_CFBundleShortVersion = "//key[text() ='CFBundleShortVersionString']/following-sibling::*[1]";
+        private const string bunleAppNameStringXPath_CFBundleName = "//key[text() ='CFBundleName']/following-sibling::*[1]";
 
         public static void Main(string[] args)
         {
@@ -28,8 +30,8 @@ namespace PackageBuddy.Runner
             {
                 if (args.Length < 1)
                 {
-                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=android -projectPath=<path/to/AndroidProject.csproj> -packageName=my.new.packagename");
-                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=ios -projectPath=<path/to/iOSProject.csproj> -packageName=my.new.packagename");
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=android -projectPath=<path/to/AndroidProject.csproj> -packageName=my.new.packagename -applicationName='My App'");
+                    Console.WriteLine("Usage:  PackageBuddy-Runner.exe -platform=ios -projectPath=<path/to/iOSProject.csproj> -packageName=my.new.packagename -applicationName='My App'");
                 }
                 else
                 {
@@ -46,16 +48,17 @@ namespace PackageBuddy.Runner
 
                     string projectPath = TrimArgument(args.FirstOrDefault(a => a.StartsWith(projectPathToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(projectPathToken.Length)));
                     string packageName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(packageNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(packageNameToken.Length)));
-                    string versionNumber = TrimArgument(args.FirstOrDefault(a => a.StartsWith(versionNumberToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNumberToken.Length)));
-                    string versionName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(versionNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionNameToken.Length)));
+                    string versionNumber = TrimArgument(args.FirstOrDefault(a => a.StartsWith(buildNumberToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(buildNumberToken.Length)));
+                    string versionName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(versionToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(versionToken.Length)));
+                    string appName = TrimArgument(args.FirstOrDefault(a => a.StartsWith(appNameToken, StringComparison.OrdinalIgnoreCase)).IfNotNull(x => x.Substring(appNameToken.Length)));
 
                     if (platform == androidPlatform)
                     {
-                        Program.LoadManifestAndUpdatePackage(projectPath, packageName, versionName, versionNumber);
+                        Program.LoadManifestAndUpdatePackage(projectPath, packageName, versionName, versionNumber, appName);
                     }
                     else if (platform == iosPlatform)
                     {
-                        Program.LoadPlistAndUpdateBundle(projectPath, packageName, versionName, versionNumber);
+                        Program.LoadPlistAndUpdateBundle(projectPath, packageName, versionName, versionNumber, appName);
                     }
                 }
             }
@@ -66,7 +69,7 @@ namespace PackageBuddy.Runner
             }
         }
 
-        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string newVersionName = null, string newVersionCode = null)
+        private static void LoadPlistAndUpdateBundle(string projectPath, string newBundleId = null, string newVersionName = null, string newBuildNumber = null, string newAppName = null)
         {
             var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
 
@@ -88,19 +91,19 @@ namespace PackageBuddy.Runner
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(newVersionCode) == false)
+            if (string.IsNullOrWhiteSpace(newBuildNumber) == false)
             {
-                string currentVersionCode = Program.GetXmlNodeValue(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion);
+                string currentBuildNumber = Program.GetXmlNodeValue(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion);
 
-                Console.WriteLine("Current Bundle Verion Build #: " + currentVersionCode);
-                if (string.IsNullOrWhiteSpace(currentVersionCode) == false && currentVersionCode != newVersionCode)
+                Console.WriteLine("Current Bundle Verion Build #: " + currentBuildNumber);
+                if (string.IsNullOrWhiteSpace(currentBuildNumber) == false && currentBuildNumber != newBuildNumber)
                 {
-                    Console.WriteLine("Updating CFBundleVersion to {0}", newVersionCode);
-                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion, newVersionCode);
+                    Console.WriteLine("Updating CFBundleVersion to {0}", newBuildNumber);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bundleVersionBuildStringXPath_CFBundleVersion, newBuildNumber);
                 }
                 else
                 {
-                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionCode);
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newBuildNumber);
                 }
             }
 
@@ -120,10 +123,26 @@ namespace PackageBuddy.Runner
                 }
             }
 
+            if (string.IsNullOrWhiteSpace(newAppName) == false)
+            {
+                string currentAppName = Program.GetXmlNodeValue(xmlDoc, bunleAppNameStringXPath_CFBundleName);
+
+                Console.WriteLine("Current Application Name: " + currentAppName);
+                if (string.IsNullOrWhiteSpace(currentAppName) == false && currentAppName != newAppName)
+                {
+                    Console.WriteLine("Updating CFBundleName to {0}", newVersionName);
+                    xmlDoc = Program.EditXmlNodes(xmlDoc, bunleAppNameStringXPath_CFBundleName, newAppName);
+                }
+                else
+                {
+                    Console.WriteLine("Don't need to change the Bundle Version. It is already " + newVersionName);
+                }
+            }
+
             Program.SaveXmlDoc(xmlDoc, "ios", fullProjectPath);
         }
 
-        private static void LoadManifestAndUpdatePackage(string projectPath, string newPackageName = null, string versionName = null, string versionNumber = null)
+        private static void LoadManifestAndUpdatePackage(string projectPath, string newPackageName = null, string versionName = null, string newBuildNumber = null, string newAppName = null)
         {
             var fullProjectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectPath));
 
@@ -132,11 +151,15 @@ namespace PackageBuddy.Runner
             Console.WriteLine("Loading manifest node");
             var manifestNode = xmlDoc.SelectSingleNode("/manifest");
             Console.WriteLine("Getting manifest attributes");
-            var attributes = manifestNode.Attributes;
+            var manifestAttributes = manifestNode.Attributes;
+            Console.WriteLine("Loading application node");
+            var applicationNode = xmlDoc.SelectSingleNode("/manifest/application");
+            Console.WriteLine("Getting application attributes");
+            var applicationAttributes = applicationNode.Attributes;
 
             if (string.IsNullOrWhiteSpace(newPackageName) == false)
             {
-                var package = attributes.GetNamedItem("package");
+                var package = manifestAttributes.GetNamedItem("package");
                 if (package != null)
                 {
                     if (string.IsNullOrWhiteSpace(package.Value) == false && package.Value != newPackageName)
@@ -158,7 +181,7 @@ namespace PackageBuddy.Runner
 
             if (string.IsNullOrWhiteSpace(versionName) == false)
             {
-                var currentVersionName = attributes.GetNamedItem("android:versionName");
+                var currentVersionName = manifestAttributes.GetNamedItem("android:versionName");
                 if (currentVersionName != null)
                 {
                     if (string.IsNullOrWhiteSpace(currentVersionName.Value) == false && currentVersionName.Value != versionName)
@@ -180,22 +203,22 @@ namespace PackageBuddy.Runner
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(versionNumber) == false)
+            if (string.IsNullOrWhiteSpace(newBuildNumber) == false)
             {
-                var currentVersionNumber = attributes.GetNamedItem("android:versionCode");
+                var currentVersionNumber = manifestAttributes.GetNamedItem("android:versionCode");
                 if (currentVersionNumber != null)
                 {
-                    if (string.IsNullOrWhiteSpace(currentVersionNumber.Value) == false && currentVersionNumber.Value != versionNumber)
+                    if (string.IsNullOrWhiteSpace(currentVersionNumber.Value) == false && currentVersionNumber.Value != newBuildNumber)
                     {
-                        Console.WriteLine("Current version number: " + versionNumber);
+                        Console.WriteLine("Current version number: " + newBuildNumber);
 
                         string xmlString = xmlDoc.OuterXml;
 
-                        currentVersionNumber.Value = versionNumber;
+                        currentVersionNumber.Value = newBuildNumber;
                     }
                     else
                     {
-                        Console.WriteLine("Don't need to change the version number. It is already " + versionNumber);
+                        Console.WriteLine("Don't need to change the version number. It is already " + newBuildNumber);
                     }
                 }
                 else
@@ -203,6 +226,29 @@ namespace PackageBuddy.Runner
                     Console.WriteLine("Could not find android:versionNumber. Skipping.");
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(newAppName) == false)
+            {
+                var label = applicationAttributes.GetNamedItem("android:label");
+                if (label != null)
+                {
+                    if (string.IsNullOrWhiteSpace(label.Value) == false && label.Value != newAppName)
+                    {
+                        Console.WriteLine("Current Application label: " + label.Value);
+
+                        label.Value = newAppName;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Don't need to change the application name. It is already " + newAppName);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Could not find label. Skipping.");
+                }
+            }
+
 
             Program.SaveXmlDoc(xmlDoc, "android", fullProjectPath);
         }
