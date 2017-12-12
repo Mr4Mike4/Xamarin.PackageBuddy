@@ -10,16 +10,19 @@ This is meant to be a cross-platform way (Windows & OSx) to update the Info.plis
 
 There are 3 values that can be manipulated using this tool:
 
+* appName
 * packageName
 * versionCode
 * versionName
 
 Android:
+- appName maps to application/android:label attribute
 - packageName maps to the package attribute
 - versionCode maps to the android:versionCode attribute
 - versionName maps to the android:versionName attribute
 
 iOS:
+- appName maps to CFBundleName
 - packageName maps to CFBundleIdentifier
 - versionName maps to CFBundleVersion
 - versionCode maps to CFBundleShortVersionString
@@ -29,15 +32,15 @@ From Xamarin Studio, add a Before Build command to each of your desired configur
 
 for iOS:
 ```text
-mono "${SolutionDir}/packages/Xamarin.PackageBuddy.0.0.2/tools/PackageBuddy.exe" -platform="ios" -projectPath="${ProjectFile}"  -packageName="your.package.name"
+mono "${SolutionDir}/packages/Xamarin.PackageBuddy.0.0.2/tools/PackageBuddy.exe" -platform="ios" -projectPath="${ProjectFile}"  -packageName="your.package.name" -appName="My Awesome App"
 ```  
 
 for Android:
 ```text
-mono "${SolutionDir}/packages/Xamarin.PackageBuddy.0.0.2/tools/PackageBuddy.exe" -platform="android" -projectPath="${ProjectFile}"  -packageName="your.package.name"
+mono "${SolutionDir}/packages/Xamarin.PackageBuddy.0.0.2/tools/PackageBuddy.exe" -platform="android" -projectPath="${ProjectFile}"  -packageName="your.package.name" -appName="My Awesome App"
 ```
 
-Now, before each build it will update the package name!
+Now, before each build it will update the package name, app name, version name & build number!
 
 Additionally, you can also specify the app version code & name:
 
@@ -45,7 +48,7 @@ Additionally, you can also specify the app version code & name:
 -versionName='1.0.0'
 ```
 ```text
--versionCode='15'
+-build='15'
 ```
 
 ### Visual Studio
